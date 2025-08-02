@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Currency {
+  id        String   @id @default(ulid())
+  code      String
+  symbol    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  wallets   Wallet[]
+
+  @@map(name: "currencies")
+}
+
+model User {
+  id        String   @id @default(ulid())
+  email     String   @unique
+  password  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  wallets   Wallet[]
+
+  @@map(name: "users")
+}
+
+model Wallet {
+  id            String        @id @default(ulid())
+  userId        String
+  currencyId    String
+  description   String
+  balance       Decimal       @default(0) @db.Decimal(15, 2)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  transactions  Transaction[]
+  transfersFrom Transfer[]    @relation("FromWallet")
+  transfersTo   Transfer[]    @relation("ToWallet")
+
+  user     User     @relation(fields: [userId], references: [id])
+  currency Currency @relation(fields: [currencyId], references: [id])
+
+  @@map(name: "wallets")
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+model Category {
+  id   String          @id @default(ulid())
+  type TransactionType
+  name String
+
+  transactions Transaction[]
+
+  @@map(name: "categories")
+}
+
+model Transaction {
+  id          String   @id @default(ulid())
+  categoryId  String
+  walletId    String
+  amount      Decimal  @db.Decimal(15, 2)
+  description String
+  date        DateTime @db.Date
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  category Category @relation(fields: [categoryId], references: [id])
+  wallet   Wallet   @relation(fields: [walletId], references: [id])
+
+  @@map(name: "transactions")
+}
+
+model Transfer {
+  id           String   @id @default(ulid())
+  fromWalletId String
+  toWalletId   String
+  amount       Decimal  @db.Decimal(15, 2)
+  date         DateTime @db.Date
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  fromWallet Wallet @relation(name: "FromWallet", fields: [fromWalletId], references: [id])
+  toWallet   Wallet @relation(name: "ToWallet", fields: [toWalletId], references: [id])
+
+  @@map(name: "transfers")
+}
