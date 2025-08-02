@@ -15,19 +15,77 @@ model Currency {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   wallets   Wallet[]
-
-  @@map(name: "currencies")
 }
 
 model User {
-  id        String   @id @default(ulid())
-  email     String   @unique
-  password  String?
+  id            String          @id @default(ulid())
+  name          String?
+  email         String          @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  // Optional for WebAuthn support
+  Authenticator Authenticator[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   wallets   Wallet[]
+}
 
-  @@map(name: "users")
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+// Optional for WebAuthn support
+model Authenticator {
+  credentialID         String  @unique
+  userId               String
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, credentialID])
 }
 
 model Wallet {
@@ -44,8 +102,6 @@ model Wallet {
 
   user     User     @relation(fields: [userId], references: [id])
   currency Currency @relation(fields: [currencyId], references: [id])
-
-  @@map(name: "wallets")
 }
 
 enum TransactionType {
@@ -59,8 +115,6 @@ model Category {
   name String
 
   transactions Transaction[]
-
-  @@map(name: "categories")
 }
 
 model Transaction {
@@ -75,8 +129,6 @@ model Transaction {
 
   category Category @relation(fields: [categoryId], references: [id])
   wallet   Wallet   @relation(fields: [walletId], references: [id])
-
-  @@map(name: "transactions")
 }
 
 model Transfer {
@@ -90,6 +142,4 @@ model Transfer {
 
   fromWallet Wallet @relation(name: "FromWallet", fields: [fromWalletId], references: [id])
   toWallet   Wallet @relation(name: "ToWallet", fields: [toWalletId], references: [id])
-
-  @@map(name: "transfers")
 }
