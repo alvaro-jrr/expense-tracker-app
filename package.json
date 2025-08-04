@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "prisma": {
-    "schema": "src/db/schema.prisma"
+    "schema": "src/server/db/schema.prisma"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",
@@ -23,7 +23,8 @@
     "next-auth": "5.0.0-beta.29",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "tailwind-merge": "^3.3.1"
+    "tailwind-merge": "^3.3.1",
+    "zod": "^4.0.14"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

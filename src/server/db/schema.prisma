@@ -20,6 +20,7 @@ model Currency {
 model User {
   id            String          @id @default(ulid())
   name          String?
+  password      String?
   email         String          @unique
   emailVerified DateTime?
   image         String?

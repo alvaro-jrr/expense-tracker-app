@@ -34,7 +34,11 @@ export function TextField({
         className="w-full"
       />
 
-      {hasError ? <p id={errorMessageId}>{error}</p> : null}
+      {hasError ? (
+        <p className="text-sm text-destructive" id={errorMessageId}>
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }
