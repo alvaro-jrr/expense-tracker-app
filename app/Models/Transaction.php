@@ -7,7 +7,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Transaction extends Model
 {
-    protected $fillable = ['wallet_id', 'category_id', 'description', 'amount', 'date', 'type'];
+    protected $fillable = ['user_id', 'wallet_id', 'category_id', 'description', 'amount', 'date', 'type'];
+
+    /**
+     * Get the user for the transaction.
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     /**
      * Get the wallet for the transaction.
